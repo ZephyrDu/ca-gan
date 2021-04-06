@@ -7,7 +7,7 @@ import argparse
 def init():
     parser = argparse.ArgumentParser(description='PyTorch ')
     # parser.add_argument('--root', type=str, default='/data/jacob/photosketch', help='image source folder')
-    parser.add_argument('--root', type=str, default='/home/jacob/dataset/photosketch', help='image source folder')
+    parser.add_argument('--root', type=str, default='/home/dataset/photosketch', help='image source folder')
     parser.add_argument('--checkpoint', type=str, default='./checkpoint', help='checkpoint folder')
     parser.add_argument('--gen_root', type=str, default='./Gen_images', help='images generated to')
     parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate for adam')
@@ -32,7 +32,7 @@ def init():
     parser.add_argument('--batchSize', type=int, default=1, help='training batchSize')
     parser.add_argument('--test_period', type=int, default=100, help='test_period')
     parser.add_argument('--save_period', type=int, default=700, help='save_period')
-    parser.add_argument('--myGpu', default='2', help='GPU Number')
+    parser.add_argument('--myGpu', default='1', help='GPU Number')
 
     parser.add_argument('--alpha1', type=float, default=0.7, help='alpha for global L1 loss ')
     parser.add_argument('--rec_weig1', type=float, default=0.3, help='weights when applying recognition')

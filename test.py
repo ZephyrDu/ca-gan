@@ -9,25 +9,25 @@ from model import *
 import option
 from torch.utils.data import DataLoader
 from myutils.Unet2 import *
+
 opt = option.init()
 norm_layer = get_norm_layer(norm_type='batch')
-netG = MyUnetGenerator(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer, \
-                           use_dropout=False, gpu_ids=opt.gpu_ids)
+netG = MyUnetGenerator(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer,
+                       use_dropout=False, gpu_ids=opt.gpu_ids)
 
-netE = MyEncoder(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer, \
-                 use_dropout=False, gpu_ids=opt.gpu_ids)
+netE = MyEncoder(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer, use_dropout=False, gpu_ids=opt.gpu_ids)
 fold = opt.test_epoch
-netG.load_state_dict(torch.load('./checkpoint/netG_epoch_'+fold+'.weight'))
-netE.load_state_dict(torch.load('./checkpoint/netE_epoch_'+fold+'.weight'))
+netG.load_state_dict(torch.load('./checkpoint/netG_epoch_' + fold + '.weight'))
+netE.load_state_dict(torch.load('./checkpoint/netE_epoch_' + fold + '.weight'))
 
 netE.cuda()
 netG.cuda()
 
-
 test_set = DatasetFromFolder(opt, False)
 
 testing_data_loader = DataLoader(dataset=test_set, num_workers=opt.threads, batch_size=1, shuffle=False)
-# netG = UnetGenerator(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer, use_dropout=False, gpu_ids=opt.gpu_ids)
+# netG = UnetGenerator(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer, use_dropout=False,
+# gpu_ids=opt.gpu_ids)
 if not os.path.exists(opt.output):
     os.makedirs(opt.output)
 
@@ -43,7 +43,8 @@ for i, batch in enumerate(testing_data_loader):
 
     parsing_feature = netE(real_p[:, 3:, :, :])
     fake_s1 = netG.forward(real_p[:, 0:3, :, :], parsing_feature)
-    # fake_s1[:, 1, :, :],fake_s1[:, 2, :, :], fake_s1[:, 0, :, :] = fake_s1[:, 0, :, :], fake_s1[:, 1, :, :], fake_s1[:, 2, :, :]
+    # fake_s1[:, 1, :, :],fake_s1[:, 2, :, :], fake_s1[:, 0, :, :] = fake_s1[:, 0, :, :], fake_s1[:, 1, :, :],
+    # fake_s1[:, 2, :, :]
     output_name_A = '{:s}/{:s}{:s}'.format(
         save_dir_A, str(i + 1), '.jpg')
     vutils.save_image(fake_s1[:, :, 3:253, 28:228], output_name_A, normalize=True, scale_each=True)
@@ -55,7 +56,4 @@ for i, batch in enumerate(testing_data_loader):
     # cc = (img * 255).astype(np.uint8)
     # cv2.imwrite(output_name_A, cc)
 
-print " saved"
-
-
-
+print("saved")

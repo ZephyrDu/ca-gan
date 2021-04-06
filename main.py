@@ -1,30 +1,16 @@
 # -*- coding: utf-8 -*-
 # @Author: JacobShi777
 
-import torch
-import torch.optim as optim
-import torchvision
-import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
-import numpy as np
-import os
-import cv2
-import random
-import argparse
-import random
-import functools
 import time
 
-from torch.autograd import Variable
+import torchvision.utils as vutils
+from torch.utils.data import DataLoader
+
+import option
 from data import *
 from model import *
-import option
-from myutils import utils
-from myutils.vgg16 import Vgg16
-from myutils.lcnn import LCNN
 from myutils.Unet2 import *
-import net
-import torchvision.utils as vutils
+from myutils.vgg16 import Vgg16
 
 opt = option.init()
 
@@ -36,14 +22,18 @@ def train(print_every=10):
 
     train_set = DatasetFromFolder(opt, True)
     test_set = DatasetFromFolder(opt, False)
-    training_data_loader = DataLoader(dataset=train_set, num_workers=opt.threads, batch_size=opt.batchSize, shuffle=True)
+    training_data_loader = DataLoader(dataset=train_set, num_workers=opt.threads, batch_size=opt.batchSize,
+                                      shuffle=True)
     testing_data_loader = DataLoader(dataset=test_set, num_workers=opt.threads, batch_size=1, shuffle=False)
 
     norm_layer = get_norm_layer(norm_type='batch')
 
-    netD = NLayerDiscriminator(opt.input_nc, opt.ndf, n_layers=1, norm_layer=norm_layer,use_sigmoid=False, gpu_ids=opt.gpu_ids)
-    netG = MyUnetGenerator(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer,   use_dropout=False, gpu_ids=opt.gpu_ids)
-    netE = MyEncoder(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer,use_dropout=False, gpu_ids=opt.gpu_ids)
+    netD = NLayerDiscriminator(opt.input_nc, opt.ndf, n_layers=1, norm_layer=norm_layer, use_sigmoid=False,
+                               gpu_ids=opt.gpu_ids)
+    netG = MyUnetGenerator(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer, use_dropout=False,
+                           gpu_ids=opt.gpu_ids)
+    netE = MyEncoder(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer, use_dropout=False,
+                     gpu_ids=opt.gpu_ids)
 
     netVGG = Vgg16()
     # utils.init_vgg16(opt.model_dir)
@@ -53,7 +43,6 @@ def train(print_every=10):
 
     perceptual_loss = PerceptualLoss(VGG, 3)
 
-
     VGG.cuda()
     netG.cuda()
     netD.cuda()
@@ -62,8 +51,6 @@ def train(print_every=10):
     netG.apply(weights_init)
     netD.apply(weights_init)
     netE.apply(weights_init)
-
-
 
     criterionGAN = GANLoss(use_lsgan=not opt.no_lsgan)
     criterionL1 = torch.nn.L1Loss()
@@ -115,14 +102,14 @@ def train(print_every=10):
             pred_fake = netD.forward(fake_ps)
             loss_G_GAN = criterionGAN(pred_fake, True)
             # loss_G_L1 = criterionL1(fake_s, real_s) * opt.lambda1
-            # !!!!!!!-------- a2b need modified cirterionL1 -----------------!!!
+            # !!!!!!!-------- a2b need modified criterionL1 -----------------!!!
             loss_global = criterionL1(fake_s, real_s)
             loss_local = localLossL1(fake_s, real_s, real_p, criterionL1)
             loss_G_L1 = opt.alpha1 * loss_global + (1 - opt.alpha1) * loss_local
             loss_G_L1 *= opt.lambda1
-            b,c,w,h = fake_s.shape
-            yh = fake_s.expand(b,3,w,h)
-            ys = real_s.expand(b,3,w,h)
+            b, c, w, h = fake_s.shape
+            yh = fake_s.expand(b, 3, w, h)
+            ys = real_s.expand(b, 3, w, h)
             _mean = Variable(torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1).expand_as(yh)).cuda()
             _var = Variable(torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1).expand_as(yh)).cuda()
             yh = yh / 2 + 0.5
@@ -130,8 +117,6 @@ def train(print_every=10):
             yh = (yh - _mean) / _var
             ys = (ys - _mean) / _var
             loss_recog = perceptual_loss(yh, ys)
-
-
 
             loss_G = loss_G_GAN + loss_G_L1 + opt.styleParam * loss_recog
 
@@ -147,8 +132,10 @@ def train(print_every=10):
             if i % print_every == 0:
                 end_time = time.time()
                 time_delta = usedtime(strat_time, end_time)
-                print('[%s-%d, %5d] D loss: %.3f ; G loss: %.3f' % (time_delta, epoch, i + 1, D_running_loss / print_every, G_running_loss / print_every))
-                f.write('%d,%d,D_loss:%.5f,GAN_loss:%.5f,L1Loss:%.5f\r\n' % (epoch, i + 1, loss_D.data[0], loss_G_GAN.data[0],loss_G_L1.data[0]))
+                print('[%s-%d, %5d] D loss: %.3f ; G loss: %.3f' % (
+                time_delta, epoch, i + 1, D_running_loss / print_every, G_running_loss / print_every))
+                f.write('%d,%d,D_loss:%.5f,GAN_loss:%.5f,L1Loss:%.5f\r\n' % (
+                epoch, i + 1, loss_D.data[0], loss_G_GAN.data[0], loss_G_L1.data[0]))
                 f2.write('%d,%d,loss_recog_loss:%.5f\r\n' % (epoch, i + 1, loss_recog.data[0]))
                 D_running_loss = 0.0
                 G_running_loss = 0.0
@@ -162,10 +149,10 @@ def train(print_every=10):
     f.close()
     f2.close()
 
-def test(epoch, netG, netE, test_data, opt):
 
+def test(epoch, netG, netE, test_data, opt):
     mkdir(opt.output)
-    save_dir_A = opt.output + "/"+str(epoch)
+    save_dir_A = opt.output + "/" + str(epoch)
     mkdir(save_dir_A)
 
     for i, batch in enumerate(test_data):
@@ -186,15 +173,12 @@ def test(epoch, netG, netE, test_data, opt):
         # cc = (img * 255).astype(np.uint8)
         # cv2.imwrite(output_name_A, cc)
 
-
-
-    print str(epoch) + " saved"
+    print(str(epoch) + " saved")
 
 
 def mkdir(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
-
 
 
 if __name__ == '__main__':

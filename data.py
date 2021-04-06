@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 # @Author: JacobShi777
 
-import cv2
 import os
 import random
+
+import cv2
 import numpy as np
-import torch
-import random
 import scipy.io as sio
-import cPickle
-from torch.autograd import Variable
-import torchvision.transforms as transforms
+import torch
 import torch.utils.data as data
+import torchvision.transforms as transforms
 
 
 def formnames(infofile, if_train):
@@ -24,7 +22,7 @@ def formnames(infofile, if_train):
     return res
 
 
-def input_transform(if_train, opt):
+def input_transform(if_train):
     if if_train:
         transform = transforms.Compose([transforms.ToTensor()])
     else:
@@ -32,7 +30,7 @@ def input_transform(if_train, opt):
     return transform
 
 
-def target_transform(if_train, opt):
+def target_transform(if_train):
     if if_train:
         transform = transforms.Compose([transforms.ToTensor()])
     else:
@@ -40,14 +38,12 @@ def target_transform(if_train, opt):
     return transform
 
 
-def load_inputs(imgpath, matpath, opt, if_train):
-    # load photos and paraing
+def load_inputs(imgpath, opt, if_train):
+    # load photos and parsing
     tmp = imgpath.split("/")
     imgpath = os.path.join(opt.root, imgpath)
-    # print imgpath
-    matpath =  tmp[0] + "/"+ tmp[1] + "_mat" + "/" + tmp[2][:-4] + ".mat"
+    matpath = tmp[0] + "/" + tmp[1] + "_mat" + "/" + tmp[2][:-4] + ".mat"
     matpath = os.path.join(opt.root, matpath)
-    # print matpath
     img = cv2.imread(imgpath)
 
     # img = img.astype(np.float32)
@@ -77,14 +73,14 @@ def load_inputs(imgpath, matpath, opt, if_train):
     return img_fl
 
 
-def load_targets(imgpath, opt, if_train):
+def load_targets(imgpath, opt, train_flag):
     # load sketches
     imgpath = os.path.join(opt.root, imgpath)
     img = cv2.imread(imgpath, cv2.IMREAD_GRAYSCALE)
     img = img.astype(np.float32)
     img = img / 255
     img = img.reshape(1, img.shape[0], img.shape[1])
-    if if_train:
+    if train_flag:
         # img = cv2.resize(img, (opt.loadSize, opt.loadSize))
         img = zero_padding(img, opt.loadSize, opt.loadSize - img.shape[1], opt.loadSize - img.shape[2])
     else:
@@ -147,23 +143,23 @@ def mat_process(img_fl):
 
 
 class DatasetFromFolder(data.Dataset):
-    def __init__(self, opt, if_train):
+    def __init__(self, opt, train_flag):
         super(DatasetFromFolder, self).__init__()
 
-        self.if_train = if_train
+        self.train_flag = train_flag
         self.opt = opt
-        self.imgnames = formnames(opt.infofile, self.if_train)
-        self.input_transform_train = input_transform(self.if_train, self.opt)
-        self.target_transform_train = target_transform(self.if_train, self.opt)
+        self.imgnames = formnames(opt.infofile, self.train_flag)
+        self.input_transform_train = input_transform(self.train_flag)
+        self.target_transform_train = target_transform(self.train_flag)
 
     def __getitem__(self, index):
 
         imgname = self.imgnames[index]
         item = imgname.split('||')
-        inputs = load_inputs(item[0], item[2], self.opt, self.if_train)
-        targets = load_targets(item[1], self.opt, self.if_train)
+        inputs = load_inputs(item[0], self.opt, self.train_flag)
+        targets = load_targets(item[1], self.opt, self.train_flag)
         identity = torch.LongTensor([int(item[3])])
-        if self.if_train:
+        if self.train_flag:
             w_offset = random.randint(0, self.opt.loadSize - self.opt.fineSize - 1)
             h_offset = random.randint(0, self.opt.loadSize - self.opt.fineSize - 1)
             # w_offset = 0
@@ -205,4 +201,4 @@ def usedtime(strat_time, end_time):
     hours = delta // 3600
     minutes = (delta - hours * 3600) // 60
     seconds = delta - hours * 3600 - minutes * 60
-    return ('%2d:%2d:%2d' % (hours, minutes, seconds))
+    return '%2d:%2d:%2d' % (hours, minutes, seconds)
