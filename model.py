@@ -218,12 +218,12 @@ class NLayerDiscriminator(nn.Module):
 
         self.model = nn.Sequential(*sequence)
 
-    def forward(self, input):
+    def forward(self, x):
         # if len(self.gpu_ids) and isinstance(input.data, torch.cuda.FloatTensor):
         #     return nn.parallel.data_parallel(self.model, input, self.gpu_ids)
         # else:
         #     return self.model(input)
-        return self.model(input)
+        return self.model(x)
 
 
 # Defines the GAN loss which uses either LSGAN or the regular GAN.

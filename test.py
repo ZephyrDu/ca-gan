@@ -1,13 +1,11 @@
-import cv2
 import torch
-from torch.autograd import Variable
-import numpy as np
-import os
 import torchvision.utils as vutils
+from torch.autograd import Variable
+from torch.utils.data import DataLoader
+
+import option
 from data import *
 from model import *
-import option
-from torch.utils.data import DataLoader
 from myutils.Unet2 import *
 
 opt = option.init()

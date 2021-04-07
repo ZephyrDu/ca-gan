@@ -97,11 +97,11 @@ def mat_merge(img, matpath):
 
 
 def zero_padding(img, size0, pad1, pad2):
-    zero_padding = np.zeros((img.shape[0], size0, size0), dtype=np.float32)
+    zero_pad = np.zeros((img.shape[0], size0, size0), dtype=np.float32)
     pad1 = pad1 / 2
     pad2 = pad2 / 2
-    zero_padding[:, pad1:size0 - pad1, pad2:size0 - pad2] = img
-    return zero_padding
+    zero_pad[:, pad1:size0 - pad1, pad2:size0 - pad2] = img
+    return zero_pad
 
 
 def mat_process(img_fl):

@@ -11,10 +11,6 @@
 # 	print size
 
 
-
-
-
-
 # with open('list_test.txt', 'r') as f, open('list_test1.txt','w') as f1:
 # 	for line in f:
 # 		line = line.strip()
@@ -25,16 +21,17 @@
 
 
 import random
+
 with open('list.txt', 'r') as f, open('list_train.txt', 'w') as f1, open('list_test.txt', 'w') as f2:
-	alldata = []
-	for line in f:
-		alldata.append(line)
-	random.shuffle(alldata)
-	lens = len(alldata)
-	threshold = int(lens*0.8)
-	for i in range(lens):
-		if i < threshold:
-			f1.write(alldata[i])
-		else:
-			f2.write(alldata[i].split('||')[0]+'\r\n')
-print ('Finished')
+    alldata = []
+    for line in f:
+        alldata.append(line)
+    random.shuffle(alldata)
+    lens = len(alldata)
+    threshold = int(lens * 0.8)
+    for i in range(lens):
+        if i < threshold:
+            f1.write(alldata[i])
+        else:
+            f2.write(alldata[i].split('||')[0] + '\r\n')
+print('Finished')

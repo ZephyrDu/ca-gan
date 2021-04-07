@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ca-gan.iml" filepath="$PROJECT_DIR$/.idea/ca-gan.iml" />
+      <module fileurl="file://$PROJECT_DIR$/face-parsing.PyTorch/.idea/face-parsing.PyTorch.iml" filepath="$PROJECT_DIR$/face-parsing.PyTorch/.idea/face-parsing.PyTorch.iml" />
     </modules>
   </component>
 </project>

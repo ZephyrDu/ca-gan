@@ -133,9 +133,9 @@ def train(print_every=10):
                 end_time = time.time()
                 time_delta = usedtime(strat_time, end_time)
                 print('[%s-%d, %5d] D loss: %.3f ; G loss: %.3f' % (
-                time_delta, epoch, i + 1, D_running_loss / print_every, G_running_loss / print_every))
+                    time_delta, epoch, i + 1, D_running_loss / print_every, G_running_loss / print_every))
                 f.write('%d,%d,D_loss:%.5f,GAN_loss:%.5f,L1Loss:%.5f\r\n' % (
-                epoch, i + 1, loss_D.data[0], loss_G_GAN.data[0], loss_G_L1.data[0]))
+                    epoch, i + 1, loss_D.data[0], loss_G_GAN.data[0], loss_G_L1.data[0]))
                 f2.write('%d,%d,loss_recog_loss:%.5f\r\n' % (epoch, i + 1, loss_recog.data[0]))
                 D_running_loss = 0.0
                 G_running_loss = 0.0
@@ -150,14 +150,14 @@ def train(print_every=10):
     f2.close()
 
 
-def test(epoch, netG, netE, test_data, opt):
-    mkdir(opt.output)
-    save_dir_A = opt.output + "/" + str(epoch)
+def test(epoch, netG, netE, test_data, opt0):
+    mkdir(opt0.output)
+    save_dir_A = opt0.output + "/" + str(epoch)
     mkdir(save_dir_A)
 
     for i, batch in enumerate(test_data):
         real_p, real_s, identity = Variable(batch[0]), Variable(batch[1]), Variable(batch[2].squeeze(1))
-        if opt.cuda:
+        if opt0.cuda:
             real_p, real_s, identity = real_p.cuda(), real_s.cuda(), identity.cuda()
 
         parsing_feature = netE(real_p[:, 3:, :, :])
@@ -176,9 +176,9 @@ def test(epoch, netG, netE, test_data, opt):
     print(str(epoch) + " saved")
 
 
-def mkdir(dir):
-    if not os.path.exists(dir):
-        os.makedirs(dir)
+def mkdir(dirname):
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
 
 
 if __name__ == '__main__':

@@ -81,8 +81,8 @@ class Net(nn.Module):
                 param.requires_grad = False
 
     # extract relu1_1, relu2_1, relu3_1, relu4_1 from input image
-    def encode_with_intermediate(self, input):
-        results = [input]
+    def encode_with_intermediate(self, x):
+        results = [x]
         for i in range(4):
             func = getattr(self, 'enc_{:d}'.format(i + 1))
             results.append(func(results[-1]))
