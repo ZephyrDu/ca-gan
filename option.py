@@ -42,11 +42,9 @@ def init():
     parser.add_argument("--content_weight", type=float, default=0.3, help="weight for content-loss, default is 1.0")
     parser.add_argument("--model_dir", type=str, default="models/",
                         help="directory for vgg, if model is not present in the directory it is downloaded")
-    parser.add_argument('--model_vgg', type=str, default='../pre_trained_models/vgg.model', help='vgg model')
+    parser.add_argument('--model_vgg', type=str, default='./pre_trained_models/vgg.model', help='vgg model')
     parser.add_argument('--styleParam', type=float, default=5.0, help='')
-
     parser.add_argument('--lambda_vgg16', type=float, default=5.0, help='')
-    parser.add_argument('--vgg16', type=str, default='../pre_trained_models/vgg.model', help='vgg model')
     parser.add_argument('--output', type=str, default="./output", help=' ')
     parser.add_argument('--test_epoch', type=str, default='700', help='test')
     opt = parser.parse_args()

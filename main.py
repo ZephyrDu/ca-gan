@@ -10,11 +10,10 @@ import option
 from data import *
 from model import *
 from myutils.Unet2 import *
-from myutils.vgg16 import Vgg16
 
 opt = option.init()
 
-os.environ["CUDA_VISIBLE_DEVICES"] = opt.myGpu
+# os.environ["CUDA_VISIBLE_DEVICES"] = opt.myGpu
 
 
 def train(print_every=10):
@@ -39,6 +38,10 @@ def train(print_every=10):
 
     perceptual_loss = PerceptualLoss(VGG, 3)
 
+    # manually set random seed
+    seed = 12345
+    torch.cuda.manual_seed_all(seed)
+
     VGG.cuda()
     netG.cuda()
     netD.cuda()
@@ -54,9 +57,9 @@ def train(print_every=10):
     criterionCEL = nn.CrossEntropyLoss()
 
     # initialize optimizers
-    optimizer_G = torch.optim.Adam(netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-    optimizer_D = torch.optim.Adam(netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
-    optimizer_E = torch.optim.Adam(netE.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
+    optimizer_G = torch.optim.AdamW(netG.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
+    optimizer_D = torch.optim.AdamW(netD.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
+    optimizer_E = torch.optim.AdamW(netE.parameters(), lr=opt.lr, betas=(opt.beta1, 0.999))
 
     print('=========== Networks initialized ============')
     print_network(netG)
@@ -66,6 +69,7 @@ def train(print_every=10):
     f = open('./checkpoint/loss.txt', 'w')
     f2 = open('./checkpoint/recognition.txt', 'w')
     strat_time = time.time()
+
     for epoch in range(1, opt.n_epoch + 1):
         D_running_loss = 0.0
         G_running_loss = 0.0
@@ -78,12 +82,14 @@ def train(print_every=10):
             real_p, real_s, identity = real_p.cuda(), real_s.cuda(), identity.cuda()
 
             optimizer_D.zero_grad()
+
             # fake
             parsing_feature = netE.forward(real_p[:, 3:, :, :])
             fake_s = netG.forward(real_p[:, 0:3, :, :], parsing_feature)
             fake_ps = torch.cat((fake_s, real_p), 1)
             pred_fake = netD.forward(fake_ps.detach())
             loss_D_fake = criterionGAN(pred_fake, False)
+
             # real
             real_ps = torch.cat((real_s, real_p), 1)
             pred_real = netD.forward(real_ps)

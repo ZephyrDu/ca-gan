@@ -46,15 +46,6 @@ def load_inputs(imgpath, opt, if_train):
     matpath = os.path.join(opt.root, matpath)
     img = cv2.imread(imgpath)
 
-    # img = img.astype(np.float32)
-    # img = img / 255
-    # imgmean = []
-    # imgstd = []
-    # for i in range(3):
-    # 	imgmean.append(float(img[:,:,i].mean()))
-    # 	imgstd.append(float(img[:,:,i].var()))
-    # transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((\
-    # 				imgmean[0], imgmean[1], imgmean[2]),(imgstd[0], imgstd[1], imgstd[2]))])
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     img = transform(img)
     img = np.transpose(img.numpy(), (1, 2, 0))
