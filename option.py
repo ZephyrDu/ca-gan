@@ -6,8 +6,7 @@ import argparse
 
 def init():
     parser = argparse.ArgumentParser(description='PyTorch ')
-    # parser.add_argument('--root', type=str, default='/data/jacob/photosketch', help='image source folder')
-    parser.add_argument('--root', type=str, default='/home/dataset/photosketch', help='image source folder')
+    parser.add_argument('--root', type=str, default='./data', help='image source folder')
     parser.add_argument('--checkpoint', type=str, default='./checkpoint', help='checkpoint folder')
     parser.add_argument('--gen_root', type=str, default='./Gen_images', help='images generated to')
     parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate for adam')
