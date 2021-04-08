@@ -97,8 +97,8 @@ def evaluate(respth='./res/test_res', dspth='./data', cp='model_final_diss.pth')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--inputPath', type=str, default='/data/xxx/photosketch/CUHK/sketches', help='image source folder')
-    parser.add_argument('--savePath', type=str, default='/data/xxx/photosketch/CUHK/sketches_mat', help='save folder')
+    parser.add_argument('--inputPath', type=str, default='./data/CUHK/sketches', help='image source folder')
+    parser.add_argument('--savePath', type=str, default='./data/CUHK/sketches_mat', help='save folder')
     args = parser.parse_args()
     evaluate(respth=args.savePath, dspth=args.inputPath, cp='79999_iter.pth')
 
