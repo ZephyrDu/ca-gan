@@ -35,10 +35,6 @@ def train(print_every=10):
     netE = MyEncoder(opt.input_nc, opt.output_nc, 8, opt.ngf, norm_layer=norm_layer, use_dropout=False,
                      gpu_ids=opt.gpu_ids)
 
-    netVGG = Vgg16()
-    # utils.init_vgg16(opt.model_dir)
-    netVGG.load_state_dict(torch.load(os.path.join(opt.model_dir, "vgg16.weight")))
-
     VGG = make_encoder(model_file=opt.model_vgg)
 
     perceptual_loss = PerceptualLoss(VGG, 3)
