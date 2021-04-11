@@ -38,14 +38,14 @@ def target_transform(if_train):
     return transform
 
 
-def load_inputs(imgpath, opt, if_train):
+def load_inputs(imgpath,matpath, opt, if_train):
     # load photos and parsing
-    tmp = imgpath.split("/")
+    # tmp = imgpath.split("/")
+    # imgpath = tmp[0] + "/" + tmp[1] + "/" + tmp[2]
     imgpath = os.path.join(opt.root, imgpath)
-    matpath = tmp[0] + "/" + tmp[1] + "_mat" + "/" + tmp[2][:-4] + ".mat"
     matpath = os.path.join(opt.root, matpath)
-    img = cv2.imread(imgpath)
 
+    img = cv2.imread(imgpath)
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     img = transform(img)
     img = np.transpose(img.numpy(), (1, 2, 0))
@@ -53,12 +53,12 @@ def load_inputs(imgpath, opt, if_train):
     img_fl = mat_merge(img, matpath)
     img_fl = np.transpose(img_fl, (2, 0, 1))
     if if_train:
-        # img_fl = cv2.resize(img_fl, (opt.loadSize, opt.loadSize))
-        img_fl = zero_padding(img_fl, opt.loadSize, opt.loadSize - img_fl.shape[1], opt.loadSize - img_fl.shape[2])
+        img_fl = cv2.resize(img_fl, (opt.loadSize, opt.loadSize))
+        # img_fl = zero_padding(img_fl, opt.loadSize, opt.loadSize - img_fl.shape[1], opt.loadSize - img_fl.shape[2])
         img_fl = mat_process(img_fl)
     else:
-        # img_fl = cv2.resize(img_fl, (opt.fineSize, opt.fineSize))
-        img_fl = zero_padding(img_fl, opt.fineSize, opt.fineSize - img_fl.shape[1], opt.fineSize - img_fl.shape[2])
+        img_fl = cv2.resize(img_fl, (opt.fineSize, opt.fineSize))
+        # img_fl = zero_padding(img_fl, opt.fineSize, opt.fineSize - img_fl.shape[1], opt.fineSize - img_fl.shape[2])
         img_fl = mat_process(img_fl)
 
     return img_fl
@@ -67,16 +67,18 @@ def load_inputs(imgpath, opt, if_train):
 def load_targets(imgpath, opt, train_flag):
     # load sketches
     imgpath = os.path.join(opt.root, imgpath)
+    #tmp = imgpath.split("/")
+    #imgpath = "./data/" + tmp[0] + "/" + tmp[1] + "/" + tmp[2]
     img = cv2.imread(imgpath, cv2.IMREAD_GRAYSCALE)
     img = img.astype(np.float32)
     img = img / 255
     img = img.reshape(1, img.shape[0], img.shape[1])
     if train_flag:
-        # img = cv2.resize(img, (opt.loadSize, opt.loadSize))
-        img = zero_padding(img, opt.loadSize, opt.loadSize - img.shape[1], opt.loadSize - img.shape[2])
+        img = cv2.resize(img, (opt.loadSize, opt.loadSize))
+        # img = zero_padding(img, opt.loadSize, opt.loadSize - img.shape[1], opt.loadSize - img.shape[2])
     else:
-        # img = cv2.resize(img, (opt.fineSize, opt.fineSize))
-        img = zero_padding(img, opt.fineSize, opt.fineSize - img.shape[1], opt.fineSize - img.shape[2])
+        img = cv2.resize(img, (opt.fineSize, opt.fineSize))
+        # img = zero_padding(img, opt.fineSize, opt.fineSize - img.shape[1], opt.fineSize - img.shape[2])
     return img
 
 
@@ -147,7 +149,7 @@ class DatasetFromFolder(data.Dataset):
 
         imgname = self.imgnames[index]
         item = imgname.split('||')
-        inputs = load_inputs(item[0], self.opt, self.train_flag)
+        inputs = load_inputs(item[0],item[2], self.opt, self.train_flag)
         targets = load_targets(item[1], self.opt, self.train_flag)
         identity = torch.LongTensor([int(item[3])])
         if self.train_flag:
